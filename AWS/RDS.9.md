@@ -12,9 +12,9 @@
 
 ### 実施時のTIP
 
-アラート解消には以下のログ取得を有効にする必要がある：
-- PostgreSQLの場合：PostgreSQLログとUpgradeログの両方
-- MySQLの場合：Errorログ、Generalログ、Slow queryログの3つ（Auditログは必須ではない）
+- アラート解消には以下のログ取得を有効にする必要がある
+  - PostgreSQLの場合：PostgreSQLログとUpgradeログの両方
+  - MySQLの場合：Errorログ、Generalログ、Slow queryログの3つ（Auditログは必須ではない）
 
 ## 対策を行わない場合のリスク軽減策
 

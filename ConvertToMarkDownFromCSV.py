@@ -18,12 +18,12 @@ def CreateStandardTable():
                 records = records + "|" + " --- |" * len(header_list) + "\n"
                 header_output_flag = True
             # 解説／対応方針の編集
-            if(row["解説／対応方針"] != ""):
+            if(row["解説／対策"] != ""):
                 file_path = row["基準"] + "/" + row["ID"] + ".md"
                 # 詳細ファイル作成
                 CreateDetailMarkdown(row,file_path)
                 # テーブルの値を更新
-                row["解説／対応方針"] = LINK_FORMAT.replace("%s1",row["ID"]).replace("%s2", file_path)
+                row["解説／対策"] = LINK_FORMAT.replace("%s1",row["ID"]).replace("%s2", file_path)
             column_list = [row[key] for key in row.keys()]
             record = "|" + "|".join(column_list) + "|"
             record = record.replace("\n","</br>")
@@ -33,7 +33,7 @@ def CreateStandardTable():
 
 def CreateDetailMarkdown(raw,file_path):
     with open(file_path, mode='w', encoding='utf-8') as f:
-        records = raw["解説／対応方針"]
+        records = raw["解説／対策"]
         records = "# " + raw["ID"] + "\n\n" + records
         records = records.replace("【①：リスク】","## リスク\n")
         records = records.replace("【②：対策】","\n## 対策\n")
