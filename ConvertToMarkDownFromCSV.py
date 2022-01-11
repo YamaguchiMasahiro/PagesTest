@@ -34,13 +34,17 @@ def CreateStandardTable():
 def CreateDetailMarkdown(raw,file_path):
     with open(file_path, mode='w', encoding='utf-8') as f:
         records = raw["解説／対応方針"]
-        records = "# " + raw["ID"] + "\n" + records
-        records = records.replace("【①：リスク】","\n## リスク\n")
+        records = "# " + raw["ID"] + "\n\n" + records
+        records = records.replace("【①：リスク】","## リスク\n")
         records = records.replace("【②：対策】","\n## 対策\n")
         records = records.replace("【③：②を行わない場合のリスク軽減策】","\n## 対策を行わない場合のリスク軽減策\n")
-        records = records.replace("（実施時のTIP）","\n### 実施時のTIP\n") 
-        records = re.sub(r'\n(https.*)\n', '\n  - <\\1>\n', records)
+        #records = records.replace("（実施時のTIP）","\n### 実施時のTIP\n") 
+        records = re.sub(r'\n（(.*)）\n', "\n\n### \\1\n\n", records)
+        # URL変換
+        #records = re.sub(r'\n(https.*)\n', '\n  - <\\1>\n', records)
+        records = re.sub(r'\n・?(https.*)\n', '\n- <\\1>\n', records)
         records = re.sub(r'\n・', "\n- ", records)
+        records = re.sub(r'\n　・?', "\n  - ", records)
         f.write(records + "\n")
         f.close()
 CreateStandardTable()

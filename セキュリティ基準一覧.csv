@@ -1,6 +1,14 @@
 ﻿項番,基準,分類,重要度,ID,タイトル,関連,解説／対応方針,新規本番,新規開発,既存本番,既存開発
 1,AWS,IAM,重要,IAM.4,IAM ルートユーザーアクセスキーは存在してはなりません,"IAM.4
-CIS.1.12",,強く推奨,強く推奨,強く推奨,強く推奨
+CIS.1.12","【①：リスク】
+・ルートユーザのアクセスキーが漏洩することにより、攻撃者によりAWS環境の全ての操作が可能になる。
+【②：対策】
+・ルートユーザのアクセスキーを削除する。
+（実施時のTIP）
+・マネジメントコンソールを使用する等のアクセスキーが不要な運用に変更する。
+・ルートユーザより権限が弱いユーザのアクセスキーを使用して運用する。
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,強く推奨,強く推奨,強く推奨
 2,AWS,RDS,重要,RDS.2,RDS DB インスタンスはパブリックアクセスを禁止する必要があります。PubliclyAccessible 設定によって決まります。,,"【①：リスク】
 ・Amazon RDSインスタンスにアタッチされたパブリックIPアドレスがインターネット上から攻撃され、RDS内の情報が漏洩する。
 【②：対策】
@@ -23,3 +31,759 @@ https://dev.classmethod.jp/articles/rdp-via-bastion-server/
 ・IMDSv2に対応している仮想マシンに変更する。
 【③：②を行わない場合のリスク軽減策】
 ・無し。",強く推奨,強く推奨,推奨,推奨
+4,AWS,S3,高,S3.8,S3 Block Public Access setting should be enabled at the bucket-level,,"【①：リスク】
+・S3バケットのブロックパブリックアクセス設定がオフになっているかつACL・バケットポリシーで正しくアクセス制限が行われていない場合にインターネット上からS3バケット内のデータを参照できてしまう。なお、本設定をオンにして、各AWSサービスからS3のデータを参照することは可能。
+【②：対策】
+・パブリックアクセスブロックをオンに設定する。
+（実施時のTIP）
+・Amazon CloudFront（オリジンアクセスアイデンティティ (OAI) ）を介してS3バケットにアクセスするように変更する。
+https://docs.aws.amazon.com/ja_jp/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,強く推奨,強く推奨,強く推奨
+5,AWS,EC2,高,EC2.18,Security groups should only allow unrestricted incoming traffic for authorized ports,"EC2.18
+CIS.4.1
+CIS.4.2","【①：リスク】
+・80,443番以外のポートに対してインターネットからのアクセスを許可することで攻撃される。
+【②：対策】
+・下記のいずれかを実施する。
+　・許可するポートを80,443番に限定する。
+　・80,443以外のポートを許可するSourceIPアドレスを限定する（0.0.0.0/0としない）。
+（実施時のTIP）
+・SG（セキュリティグループ）のIPアドレス設定を簡易化するツールを提供可能。
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,強く推奨,強く推奨,強く推奨
+6,AWS,EC2,高,EC2.9,EC2 instances should not have a public IPv4 address,,"【①：リスク】
+・Amazon EC2インスタンスにアタッチされたパブリックIPアドレスがインターネット上から攻撃される。
+【②：対策】
+・Amazon EC2インスタンスにパブリックIPアドレス割り当てない構成にする。
+・サブネットの設定でEC2インスタンスにパブリックIPアドレスが付与されないように設定する。
+（実施時のTIP）
+・保守作業用の踏み台サーバとしてパブリックIPアドレスを割り当てている場合は、AWS Systems Managerのセッションマネージャーの代替を検討する。
+（RDPが必要な場合）
+・https://business.ntt-east.co.jp/content/cloudsolution/column-try-27.html
+【③：②を行わない場合のリスク軽減策】
+・SG（セキュリティグループ）等で接続元IPを制限する。",強く推奨,強く推奨,推奨,推奨
+7,AWS,EC2,高,EC2.2,VPC のデフォルトのセキュリティグループはインバウンドトラフィックとアウトバウンドトラフィックを許可しない必要があります,"EC2.2
+CIS.4.3","【①：リスク】
+・VPCのデフォルトセキュリティグループを使用することで、想定よりも広い範囲のIPアドレスやポート番号に対してアクセスができてしまう場合に攻撃される可能性がある。
+【②：対策】
+・VPCのデフォルトセキュリティグループの全ての通信許可設定を削除する。
+・VPCのデフォルトセキュリティグループが割り当てされているリソースは、別のセキュリティグループに変更する。
+【③：②を行わない場合のリスク軽減策】
+・VPCのデフォルトセキュリティグループの通信設定が適切であることを再確認する。",強く推奨,強く推奨,任意,任意
+8,AWS,RDS,高,RDS.13,RDS automatic minor version upgrades should be enabled,,"【①：リスク】
+・古いバージョンのRDSを使用することで、脆弱性と攻撃され、RDS内の情報が漏洩する可能性がある。
+【②：対策】
+・「マイナーバージョン自動アップグレードの有効化」をオンにする。
+【③：②を行わない場合のリスク軽減策】
+・マイナーバージョンをアップグレードしないことによる脆弱性情報を収集し、自システムにおけるセキュリティリスク評価を行う。",任意,任意,任意,任意
+9,AWS,ECS,高,ECS.2,ECS services should not have public IP addresses assigned to them automatically,"ECS.2
+EMR.1","【①：リスク】
+・Amazon ECS サービスにアタッチされたパブリックIPアドレスがインターネット上から攻撃される。
+【②：対策】
+・Amazon ECS サービスにパブリックIPアドレスを割り当てない構成にする。
+（実施時のTIP）
+・コンテナ内に入る必要がある場合はECSExecにてログインが可能である。
+・ECSExec自体はCloudShellから利用することが可能である。
+【③：②を行わない場合のリスク軽減策】
+・SG（セキュリティグループ）等で接続元IPを制限する。",強く推奨,強く推奨,推奨,推奨
+10,AWS,CloudTrail,高,CloudTrail.1,CloudTrail を有効にして、少なくとも 1 つのマルチリージョントレイルで設定する必要があります,"CloudTrail.1
+CIS.2.1","【①：リスク】
+・セキュリティインシデント発生時にAWS上のイベントが取得できていないために、原因や影響範囲等が調査できない可能性がある。
+【②：対策】
+・マルチリージョンの証跡をオンにする。
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,強く推奨,強く推奨,強く推奨
+11,AWS,IAM,高,IAM.1,IAM ポリシーは完全な「*」管理権限を許可してはなりません,"IAM.1
+CIS.1.22","【①：リスク】
+・非必要な権限を付与するIAMポリシーがユーザにアタッチされることで、アカウントの乗っ取りによる攻撃や正規ユーザに不正な操作を行われる可能性がある。なお、本警告はIMAポリシーがIAMにアタッチされているどうかに関わらず検出される。
+【②：対策】
+・IAM ポリシーの操作（Action）やリソース（Resource）を必要最小限の範囲に変更する。「*」を指定しない。
+・操作（Action）やリソース（Resource）共に「*」とを指定したい場合はマネージドポリシーの「AdministratorAccess」を設定する。
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,強く推奨,強く推奨,強く推奨
+12,AWS,GuardDuty,高,GuardDuty.1,GuardDuty を有効にする必要があります,,"【①：リスク】
+・セキュリティインシデント発生の検知が遅れる可能性がある。
+【②：対策】
+・GuardDutyを有効にする。
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,強く推奨,強く推奨,強く推奨
+13,AWS,S3,高,S3.6,S3 バケットポリシーで他の AWS アカウントに付与される S3 アクセス許可は制限する必要があります,,"【①：リスク】
+・他アカウントからS3バケットのデータを不正に追加・変更・削除される可能性がある。
+【②：対策】
+・S3バケットポリシーに設定されている他アカウントからの追加・変更・削除許可を削除する。
+（実施時のTIP）
+・「s3:GetObject」等の読み取り権限のみで要件を満たせないか確認する。
+【③：②を行わない場合のリスク軽減策】
+・他アカウントからアクセスできるバケット内のデータを限定する。
+・他アカウントが実施できるActionを限定する。",推奨,推奨,推奨,推奨
+14,AWS,EC2,中,EC2.3,アタッチされた EBS ボリュームは、保管時に暗号化する必要があります,,"【①：リスク】
+・AWSデータセンター内のストレージが盗難にあった場合に、情報漏洩のリスクが高まる。
+【②：対策】
+・EBSボリューム作成時に暗号化設定をして作成する。
+・暗号化されていない既存のボリュームまたはスナップショットを直接暗号化する方法はないが、ボリュームまたはスナップショットを作成時に暗号化できる。
+・リージョン単位でEBSボリュームを自動有効化する設定がある。
+（参考）
+・https://docs.aws.amazon.com/ja_jp/AWSEC2/latest/UserGuide/EBSEncryption.html
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,強く推奨,推奨,推奨
+15,AWS,S3,中,S3.5,S3 バケットでは Secure Socket Layer を使用するためのリクエストを求める必要があります,,"【①：リスク】
+・S3バケットアクセス時の通信を暗号化しないことにより、通信内容を盗聴された際に情報漏洩のリスクが高まる。
+【②：対策】
+・S3 バケットポリシーで非暗号化通信を拒否する設定を行う。
+（参考）
+・https://aws.amazon.com/jp/premiumsupport/knowledge-center/s3-bucket-policy-for-config-rule/
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,強く推奨,推奨,推奨
+16,AWS,S3,中,S3.4,S3 バケットでは、サーバー側の暗号化を有効にする必要があります,,"【①：リスク】
+・AWSデータセンター内のストレージが盗難にあった場合に、情報漏洩のリスクが高まる。
+【②：対策】
+・サーバー側の暗号化を使用したデータの保護を有効にする。またはS3 バケットポリシーでサーバー側の暗号化なしの put-object リクエストを明示的に拒否する。
+　※但し、設定前に格納したオブジェクトは暗号化されていない。
+（参考）
+・https://docs.aws.amazon.com/ja_jp/AmazonS3/latest/userguide/serv-side-encryption.html
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,強く推奨,強く推奨,強く推奨
+17,AWS,RDS,中,RDS.4,RDS クラスタースナップショットとデータベーススナップショットは保管時に暗号化する必要があります,,"【①：リスク】
+・AWSデータセンター内のストレージが盗難にあった場合に、情報漏洩のリスクが高まる。
+【②：対策】
+・新しいスナップショット作成時に暗号化を有効にして作成する。非暗号化スナップショットは削除する。
+　※但し、RDS本体が暗号化されていないとスナップショット暗号化できない。スナップショットを作成後に暗号化することも可能。
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,強く推奨,推奨,推奨
+18,AWS,SSM,中,SSM.1,EC2 インスタンスは、AWS Systems Manager で管理する必要があります,,"【①：リスク】
+・Systems Managerを使用せず、インターネットからアクセス可能な踏み台サーバを構築することや、EC2で検出されたポリシー違反について報告または修正処理が行えないことにより、攻撃リスクが高まる。
+【②：対策】
+・EC2インスタンスをAWS Systems Managerで管理できるように設定する。
+　・SSMエージェントがインストールされていること。デフォルトでインストールが多い。
+　・AWS Systems Managerへのアクセス可能なロールを付与する。
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,強く推奨,推奨,推奨
+19,AWS,IAM,中,IAM.3,IAM ユーザーのアクセスキーは、90 日以内にローテーションする必要があります,"IAM.3
+CIS.1.4","【①：リスク】
+・アクセスキーが漏洩することにより、AWSリソースが自由に操作される。
+【②：対策】
+・アクセスキーを定期的に更新する。
+【③：②を行わない場合のリスク軽減策】
+・対象のアクセスキーで可能な操作を限定するように権限設定を行う。",推奨,推奨,推奨,推奨
+20,AWS,IAM,中,IAM.8,使用されていない IAM ユーザー認証情報は削除する必要があります,"IAM.8
+CIS.1.3","【①：リスク】
+・90 日間使用されたことのないパスワードまたはアクティブなアクセスキーを用いた不正アクセスのリスクが高まる。
+【②：対策】
+・認証情報を削除または非アクティブ化する。
+【③：②を行わない場合のリスク軽減策】
+・無し。",推奨,推奨,推奨,推奨
+21,AWS,EC2,中,EC2.4,停止した EC2 インスタンスは、指定した期間後に削除する必要があります,,"【①：リスク】
+・無し。※起動しない限りセキュリティリスクは無い。なお、３０日停止しているインスタンスが対象。
+【②：対策】
+・不要であれば削除する。
+【③：②を行わない場合のリスク軽減策】
+・無し。",任意,任意,任意,任意
+22,AWS,EC2,中,EC2.15,EC2 subnets should not automatically assign public IP addresses,,"【①：リスク】
+・EC2作成時に意図しないパブリックIPアドレスが割り当てされることで、不正アクセスのリスクが高くなる。
+【②：対策】
+・サブネットの「パブリック IPv4 アドレスを自動割り当て」をオフ（いいえ）に設定する。
+　※作成済みのEC2インスタンスには影響しない。
+【③：②を行わない場合のリスク軽減策】
+・無し。",推奨,推奨,推奨,推奨
+23,AWS,ELB,中,ELB.6,Application Load Balancer deletion protection should be enabled,,"【①：リスク】
+・無し。
+【②：対策】
+・Application Load Balancerの削除保護を有効にする。
+【③：②を行わない場合のリスク軽減策】
+・無し。",任意,任意,任意,任意
+24,AWS,Lambda,中,Lambda.2,Lambda 関数は最新のランタイムを使用する必要があります,,"【①：リスク】
+・サポートされない古いランタイムを使用することにより、ランタイムが持つ脆弱性を攻撃される可能性がある。
+【②：対策】
+・使用するランタイムの設定を新しいものに設定する。
+【③：②を行わない場合のリスク軽減策】
+・無し。",推奨,推奨,推奨,推奨
+25,AWS,EC2,中,EC2.10,Amazon EC2 should be configured to use VPC endpoints,,"【①：リスク】
+・EC2がVPCの外側にあるAWSリソースにアクセスする場合に、VPCエンドポイントを使用せず、パブリックIPアドレスを使用することで不正アクセスされるリスクが高まる。
+【②：対策】
+・VPCエンドポイントを作成する。
+【③：②を行わない場合のリスク軽減策】
+・無し。",任意,任意,任意,任意
+26,AWS,EC2,中,EC2.6,VPC フローログ記録はすべての VPC で有効にする必要があります,"EC2.6
+CIS.2.9","【①：リスク】
+・VPC内の不正通信を記録しないことにより、フローログを用いたセキュリティインシデントの検知や事後調査ができなくなる。　
+※なお、本機能を有効にしていなくてもGuradDutyのフローログに対する異常検知は行われる。
+（参考）
+・https://aws.amazon.com/jp/guardduty/faqs/
+【②：対策】
+・VPC フローログ記録を有効にする。
+【③：②を行わない場合のリスク軽減策】
+・無し。",推奨,推奨,推奨,推奨
+27,AWS,ELB,中,ELB.4,Application load balancer should be configured to drop http headers,,"【①：リスク】
+・RFCに準拠していない不正なHTTPヘッダーを含むリクエストを処理することで、HTTP Desync攻撃が発生する可能性がある。
+（参考）
+・https://docs.aws.amazon.com/ja_jp/elasticloadbalancing/latest/application/application-load-balancers.html
+【②：対策】
+・「無効なヘッダーフィールドを削除」を有効化する。
+・上記と合わせて、RFC 7230に準拠するHTTPリクエストとなるようにアプリケーションを修正する。
+【③：②を行わない場合のリスク軽減策】
+・バックエンドの間の通信に HTTP/2 を利用したり、バックエンド接続の再利用を無効化する。
+・不正なHTTPヘッダを含むリスクエストがセキュリティリスクとならないか評価する。",強く推奨,強く推奨,推奨,推奨
+28,AWS,ELB,中,ELB.5,Application and Classic Load Balancers logging should be enabled,,"【①：リスク】
+・ALBのアクセスログを記録しないことにより、アクセスログを用いたセキュリティインシデントの検知や事後調査ができなくなる。
+【②：対策】
+・ALBのアクセスログ取得を有効化する。※ログはS3に保存される。
+【③：②を行わない場合のリスク軽減策】
+・ALBのバックエンド側でログを取得する。※但しALBを通過した分のみとなる。",強く推奨,強く推奨,推奨,推奨
+29,AWS,EC2,中,EC2.19,Security groups should not allow unrestricted access to ports with high risk,,"（EC2.18よりも緩い条件であるため省略）
+3389 (RDP)、20, 21 (FTP)、22 (SSH)、23（telnet）、110 (POP3)、143 (IMAP)、3306 (MySQL)、8080 (http)、1433、1434 (MSSQL)、9200か9300 (OpenSearch)、5601（kibana）、25 (SMTP)、445 (CIFS)、135 (RPC)、4333 (ahsp)、5432 (postgresql)、5500 (fcp-addr-srvr1)",強く推奨,強く推奨,強く推奨,強く推奨
+30,AWS,IAM,中,IAM.5,MFA は、コンソールパスワードを持つすべての IAM ユーザーに対して有効にする必要があります,"IAM.5
+CIS.1.2","【①：リスク】
+・ID、パスワードが漏洩したり、総当たり攻撃等により、不正にアカウントにログインされる可能性がある。
+【②：対策】
+・アカウントのMFAを有効にする。
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,強く推奨,強く推奨,強く推奨
+31,AWS,RDS,中,RDS.5,RDS DB インスタンスは複数のアベイラビリティーゾーンで設定する必要があります,,"【①：リスク】
+・単一のアベイラビリティーゾーン（単一AZ）にDBクラスターを配置する場合、該当AZで障害が発生するとサービス停止やデータ消失等の問題が発生する可能性がある。
+【②：対策】
+・DB インスタンスのマルチAZ配置を有効に設定する。
+【③：②を行わない場合のリスク軽減策】
+・無し。",任意,任意,任意,任意
+32,AWS,SNS,中,SNS.1,SNS topics should be encrypted at-rest using AWS KMS,,"【①：リスク】
+・暗号化せずに保存することで、ストレージへの物理的なアクセスによりデータが抜き取られるリスク。
+【②：対策】
+・SNSトピックの保管時のデータ暗号化を有効化する。
+（実施時のTIP）
+・なし
+【③：②を行わない場合のリスク軽減策】
+・重要な情報はSNSトピックで配信しない。",強く推奨,強く推奨,強く推奨,強く推奨
+33,AWS,APIGateway,中,APIGateway.2,API Gateway REST API stages should be configured to use SSL certificates for backend authentication,,"【①：リスク】
+・API Gatewayからアクセスするバックエンドサービスが、正当ではない呼び出し元からアクセスされても検知できないリスク
+【②：対策】
+・API Gatewayのコンソールでクライアント証明書を作成し、ステージに適用する
+https://docs.aws.amazon.com/ja_jp/apigateway/latest/developerguide/getting-started-client-side-ssl-authentication.html
+（実施時のTIP）
+・API Gatewayのステージを利用していないとこの項目は検出されない
+【③：②を行わない場合のリスク軽減策】
+・API Gatewayからアクセスするバックエンドサービスが外部からアクセスできないよう構成する",任意,任意,任意,任意
+34,AWS,APIGateway,中,APIGateway.4,API Gateway should be associated with a WAF Web ACL,,"【①：リスク】
+・ウェブの脆弱性を利用した攻撃によって可用性、セキュリティ侵害、リソースの過剰消費を被る可能性がある。
+【②：対策】
+・API GatewayステージにAWS WAF リージョンウェブ ACLを割り当てる。
+【③：②を行わない場合のリスク軽減策】
+・無し。",任意,任意,任意,任意
+35,AWS,APIGateway,中,APIGateway.1,API Gateway REST and WebSocket API execution logging should be enabled,,"【①：リスク】
+API Gateway RESTまたはWebSocket APIでログを記録しないことにより、API Gateway REST、WebSocket APIに関する不正アクセスの調査ができなくなる。
+【②：対策】
+・API Gatewa yRESTとWebSocketAPIロギングを有効にする。
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,任意,強く推奨,任意
+36,AWS,KMS,中,KMS.2,IAM プリンシパルには、すべての KMS キーで復号アクションを許可する IAM インラインポリシーがあってはなりません,,"【①：リスク】
+IAM IDにすべてのKMSリソースに対する暗号化および復号化の権限を付与すると、ユーザーが不適切なKMSキーを使用する可能性がある。
+【②：対策】
+・IAMのインラインポリシーを編集して特定のKMSのリソースを指定する。
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,推奨,強く推奨,推奨
+37,AWS,RDS,中,RDS.3,RDS DB インスタンスでは、保管時の暗号化を有効にする必要があります,,"【①：リスク】
+・DBインスタンスが暗号化されていないと、ストレージへの不正アクセスによりデータが平文で読み取られるリスクがある
+【②：対策】
+・RDSインスタンスを作成時に暗号化を有効化する
+・作成済みの暗号化されていないRDSインスタンスを暗号化するには、まずスナップショットを取得し、それを使い暗号化されたスナップショットのコピーを作成し、DBインスタンスを復元する
+（実施時のTIP）
+・インスタンスクラスの一部（主に無料利用枠対象）は暗号化が利用できない
+https://docs.aws.amazon.com/ja_jp/AmazonRDS/latest/UserGuide/Overview.Encryption.html
+【③：②を行わない場合のリスク軽減策】
+・なし",強く推奨,推奨,推奨,推奨
+38,AWS,KMS,中,KMS.1,IAM カスタマー管理ポリシーでは、すべての KMS キーで復号アクションを許可してはなりません,,"【①：リスク】
+・全てのキーへの復号処理権限を付与したIAMカスタマー管理ポリシーを作成すると、そのポリシーを割り当てたIAMユーザー、IAMロールが悪用されたときに復号できるデータの範囲が広くなってしまう
+【②：対策】
+・カスタマー管理ポリシーでkms:Decrypt、kms:ReEncryptFromを扱う場合は、アクセス権を付与するキーを明示的にResourceに記述する
+・AWSマネージドポリシーを使う
+【③：②を行わない場合のリスク軽減策】
+・キーポリシーでアクセス制御を行う",推奨,推奨,推奨,推奨
+39,AWS,S3,中,S3.1,S3 ブロックパブリックアクセス設定を有効にする必要があります,,"【①：リスク】
+・S3バケットのブロックパブリックアクセス設定がオフになっているかつACL・バケットポリシーで正しくアクセス制限が行われていない場合にインターネット上からS3バケット内のデータを参照できてしまう。アカウントレベルでのブロックパブリックアクセス設定を有効にすると、各バケットレベルのブロックパブリックアクセスの状態に関わらず、全てのバケットへのパブリックアクセスを禁止でき、設定ミスを防ぐことができる。
+【②：対策】
+・アカウントレベルのパブリックアクセスブロックをオンに設定する。
+（実施時のTIP）
+・アカウントレベルのパブリックアクセスブロック設定は最も強く、バケットレベルのパブリックアクセスブロック、バケットポリシー、バケットACLに関わらずパブリックアクセスを全て禁止にする。
+【③：②を行わない場合のリスク軽減策】
+・バケットレベルでパブリックアクセスブロックを設定する。",強く推奨,強く推奨,強く推奨,強く推奨
+40,AWS,CloudTrail,中,CloudTrail.2,CloudTrail では、保管時の暗号化を有効にする必要があります,"CloudTrail.2
+CIS.2.7","【①：リスク】
+・CloudTrailログファイルのセキュリティを”更に”強化するため、CloudTrailログファイルにAWS KMSキー（SSE-KMS）を使用して保存時の暗号化を行う。
+※デフォルトでAES-256（SSE-S3）を用いた暗号化がされている
+【②：対策】
+・CloudTrailでログファイルのSSE-KMS暗号化を有効に設定する。
+【③：②を行わない場合のリスク軽減策】
+・無し。",任意,任意,任意,任意
+41,AWS,ELBv2,中,ELBv2.1,Application Load Balancer は、すべての HTTP リクエストを HTTPS にリダイレクトするように設定する必要があります,,"【①：リスク】
+・非暗号化通信は盗聴、改ざんのリスクが高い。
+【②：対策】
+・HTTPリスナーの既存ルールを削除する
+・HTTPリスナーにHTTPSアドレスにリダイレクトするルールを追加する
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,推奨,強く推奨,推奨
+42,AWS,IAM,中,IAM.7,IAM ユーザーのパスワードポリシーには、強力な設定が必要です,"IAM.7
+CIS.1.5
+CIS.1.6
+CIS.1.7
+CIS.1.8
+CIS.1.9","【①：リスク】
+・脆弱なパスワードのIAMユーザーは不正なアクセス等に利用される可能性がある。
+【②：対策】
+・IAMアカウント設定のパスワードポリシーで以下の要件を有効にする
+　ーパスワードの最小文字数を強制する（14文字）
+　ー1 文字以上のアルファベット大文字 (A～Z) を必要とする
+　ー1 文字以上のアルファベット小文字 (a～z) を必要とする
+　ー少なくとも 1 つの数字が必要
+　ー少なくとも 1 つの英数字以外の文字が必要 (! @ # $ % ^ & * ( ) _ + - = [ ] { } | ')
+【③：②を行わない場合のリスク軽減策】
+・AWS SSOのフェデレーションを利用する。",強く推奨,強く推奨,強く推奨,推奨
+43,AWS,ACM,中,ACM.1,ACM 証明書は、指定された期間後に更新する必要があります。,,"【①：リスク】
+・証明書の有効期限が切れると、TLS接続の検証に失敗してしまう。（有効期限が残り1ヶ月以内、もしくは期限切れ証明書について検出される）
+【②：対策】
+・期限が切れる前に更新する。
+・使用していない証明書の場合、AWS Certificate Managerから削除する。
+（実施時のTIP）
+・AWS発行の証明書の場合、基本的に自動更新される
+・証明書の更新をDNS認証による自動更新に設定する
+https://docs.aws.amazon.com/ja_jp/acm/latest/userguide/managed-renewal.html
+【③：②を行わない場合のリスク軽減策】
+・なし",強く推奨,推奨,強く推奨,推奨
+44,AWS,EC2,中,EC2.7,EBS のデフォルト暗号化を有効にする必要があります,,"【①：リスク】
+・EBSを暗号化しないことで、ストレージへの物理的なアクセスによりデータが抜き取られるリスク。また、KMSへのアクセス権限がないIAMユーザー・ロールでも、EC2へアクセス出来ればデータが参照できるリスク。
+【②：対策】
+・リージョンレベルのEBSデフォルト暗号化を有効にする。
+（実施時のTIP）
+・EBSデフォルト暗号化は、EC2を新規に作成する時、およびEBSスナップショットをコピーするときに自動的にEBSボリュームを暗号化する。作成済みのリソースの暗号化状態は変更されることはない。またEC2からEBSスナップショットを作成する時も、直接暗号化されることはない。
+https://docs.aws.amazon.com/ja_jp/AWSEC2/latest/UserGuide/EBSEncryption.html#encryption-by-default
+【③：②を行わない場合のリスク軽減策】
+・IAMポリシーやリソースポリシーを利用し、EC2へのアクセス権限を最小限に指定する。",強く推奨,強く推奨,推奨,推奨
+45,AWS,RDS,中,RDS.10,IAM authentication should be configured for RDS instances,,"【①：リスク】
+・RDSインスタンスへの接続にユーザ名・パスワードを使用すると、機密情報を安全に管理するための手間が発生し、漏洩するリスクが高い。
+【②：対策】
+・RDSインスタンスの設定にて、データベース認証に「パスワードとIAMデータベース認証」を選択する。データベースへアクセスするユーザーはパスワード無しで作成し、適切なIAMポリシーを付けたIAMロールを利用してデータベースアクセスする。
+https://blog.serverworks.co.jp/rds-iamdblogin
+（実施時のTIP）
+・IAM認証がサポートされているのはMySQL、PostgreSQL、Auroraのみである。
+【③：②を行わない場合のリスク軽減策】
+・データベース接続情報をSecrets ManagerやSystems Manager Parameter StoreのSecureStringで安全に保存し、IAMポリシーでアクセス制限を最小限に絞る。",推奨,推奨,推奨,推奨
+46,AWS,RDS,中,RDS.15,RDS DB clusters should be configured for multiple Availability Zones,,"【①：リスク】
+・単一のアベイラビリティーゾーン（単一AZ）にDBクラスターを配置する場合、該当AZで障害が発生するとサービス停止やデータ消失等の問題が発生する可能性がある。
+【②：対策】
+・DBクラスターのマルチAZ配置を有効に設定する。
+【③：②を行わない場合のリスク軽減策】
+・無し。",任意,任意,任意,任意
+47,AWS,RDS,中,RDS.9,Database logging should be enabled,,"【①：リスク】
+・データベースログを取得しない場合、セキュリティやアクセスの監査を行えなかったり、サービス停止等の障害調査を行えないリスクがある。
+【②：対策】
+・各DBタイプに必要なパラメータ値を持つDB パラメータグループを作成する
+・DBインスタンスにパラメータグループを割り当てる
+・DBインスタンスでCloudWatch Logsへのログ出力を設定する
+（実施時のTIP）
+・アラート解消には以下のログ取得を有効にする必要がある
+　・PostgreSQLの場合：PostgreSQLログとUpgradeログの両方
+　・MySQLの場合：Errorログ、Generalログ、Slow queryログの3つ（Auditログは必須ではない）
+【③：②を行わない場合のリスク軽減策】
+・無し。",推奨,推奨,推奨,推奨
+48,AWS,SQS,中,SQS.1,Amazon SQS queues should be encrypted at rest,,"【①：リスク】
+・非暗号化メッセージの保管は盗聴のリスクがある。
+※メッセージ転送時の暗号化はデフォルトで実施されている
+【②：対策】
+・各キュ―でサーバー側の暗号化を有効に設定する。
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,強く推奨,強く推奨,強く推奨
+49,AWS,DynamoDB,中,DynamoDB.1,DynamoDB tables should automatically scale capacity with demand,,"【①：リスク】
+・設定した読み込み／書き込み容量を超えるアクセスが発生すると、アクセスが失敗する場合がある。
+【②：対策】
+・DynamoDBテーブルのキャパシティ設定を「オンデマンド」にするか、「プロビジョンド」でReadとWrite両方のAuto scalingをオンにする。
+（実施時のTIP）
+なし
+【③：②を行わない場合のリスク軽減策】
+・テーブルのメトリクスをモニタリングし、必要に応じて読み込み／書き込み容量を変更する。",任意,任意,任意,任意
+50,AWS,DynamoDB,中,DynamoDB.2,DynamoDB tables should have point-in-time recovery enabled,,"【①：リスク】
+・誤ったデータ削除／更新への対応ができない
+【②：対策】
+・DynamoDBテーブルのポイントインタイムリカバリーを有効にする。
+（実施時のTIP）
+・ポイントインタイムリカバリーは利用料が発生する。
+・元のテーブルにリストアすることはできず、新しいテーブルを作成してリストアする必要がある。
+【③：②を行わない場合のリスク軽減策】
+・定期的にテーブルのバックアップを取得する。",任意,任意,任意,任意
+51,AWS,EFS,中,EFS.1,Elastic File System は、AWS KMS を使用して保管時のファイルデータを暗号化するように設定する必要があります,,"【①：リスク】
+・EFSのデータを暗号化せずに保存することで、ストレージへの物理的なアクセスによりデータが抜き取られるリスク。また、KMSへのアクセス権限がないIAMユーザー・ロールでも、EFSへアクセス出来ればデータが参照できるリスク。
+【②：対策】
+・暗号化されていないEFSファイルシステムのバックアップを取得し、リストアする際に暗号化を有効にする。
+（実施時のTIP）
+・マネジメントコンソールからEFSファイルシステムを新規にを作成する場合、自動で推奨設定を利用して暗号化されたファイルシステムが作成される。
+・CLIからEFSファイルシステムを新規に作成する場合、デフォルトでは暗号化されないため、--encryptedオプションを付ける必要がある。
+https://docs.aws.amazon.com/cli/latest/reference/efs/create-file-system.html
+【③：②を行わない場合のリスク軽減策】
+・IAMポリシーやリソースポリシーを利用し、EFSへのアクセス権限を最小限に指定する。",強く推奨,強く推奨,推奨,推奨
+52,AWS,EFS,中,EFS.2,Amazon EFS volumes should be in backup plans,,"【①：リスク】
+・バックアップを作成しない場合、誤操作によるファイル削除等に対して十分なデータ保護が行えない。
+※EFSは99.999999999% (イレブンナイン) の耐久性がある
+【②：対策】
+・EFSコンソールから該当ファイルシステムに対して自動バックアップを有効化する。
+【③：②を行わない場合のリスク軽減策】
+・無し。",任意,任意,任意,任意
+53,AWS,ELB,中,ELB.2,Classic Load Balancers with SSL/HTTPS listeners should use a certificate provided by AWS Certificate Manager,,"【①：リスク】
+・暗号化通信の信頼性を高めるため、ELBにおいてACM発行の証明書を利用すべき
+【②：対策】
+・ACMでSSL/TLS証明書を発行する
+・Classic Load BalancerにACM発行のSSL/TLS証明書を関連付ける
+【③：②を行わない場合のリスク軽減策】
+・無し。",推奨,推奨,任意,任意
+54,AWS,RDS,中,RDS.12,IAM authentication should be configured for RDS clusters,"RDS.10
+RDS.12","【①：リスク】
+・RDSクラスターへの接続にユーザ名・パスワードを使用すると、機密情報を安全に管理するための手間が発生し、漏洩するリスクが高い。
+【②：対策】
+・RDSクラスターの設定にて、データベース認証に「パスワードとIAMデータベース認証」を選択する。データベースへアクセスするユーザーはパスワード無しで作成し、適切なIAMポリシーを付けたIAMロールを利用してデータベースアクセスする。
+https://blog.serverworks.co.jp/rds-iamdblogin
+（実施時のTIP）
+・IAM認証がサポートされているのはMySQL、PostgreSQL、Auroraのみである。
+【③：②を行わない場合のリスク軽減策】
+・データベース接続情報をSecrets ManagerやSystems Manager Parameter StoreのSecureStringで安全に保存し、IAMポリシーでアクセス制限を最小限に絞る。",推奨,推奨,推奨,推奨
+55,AWS,SecretsManager,中,SecretsManager.1,Secrets Manager のシークレットでは、自動ローテーションを有効にする必要があります,,"【①：リスク】
+・固定化されたDB認証情報は不正なアクセス等に利用される可能性が高まる。
+【②：対策】
+・各シークレットで自動ローテーションを有効にする
+【③：②を行わない場合のリスク軽減策】
+・無し。",推奨,推奨,推奨,推奨
+56,AWS,ELB,中,ELB.8,Classic Load Balancers with HTTPS/SSL listeners should use a predefined security policy that has strong configuration,,"【①：リスク】
+・ELBのリスナーに設定する定義済みポリシーとして、「TLS-1-2-2017-01」以外を使用することで、セキュリティリスクのある暗号方式等（例えばTLS 1.1など）が使用される可能性がある。
+（参考）
+・https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/elb-security-policy-table.html
+（実施時のTIP）
+・デフォルトでは「TLS-1-2-2017-01」が選択されたない可能性があるため、注意すること。
+【②：対策】
+・ELBのリスナーの定義済みポリシーとして「TLS-1-1-2017-01」を使用する。
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,強く推奨,推奨,推奨
+57,AWS,Config,中,Config.1,AWS Config を有効にする必要があります,"Config.1
+CIS.2.5","【①：リスク】
+・AWSリソースの設定管理を適切に行わないと、セキュリティ分析、リソース変更の追跡、コンプライアンスの監査が困難になる。
+【②：対策】
+・AWS Configを有効にする。
+（実施時のTIP）
+・AWS ConfigではAWSリソースの構成変更の際に微小な課金がある。
+【③：②を行わない場合のリスク軽減策】
+・なし",強く推奨,強く推奨,強く推奨,強く推奨
+58,AWS,ELB,中,ELB.3,Classic Load Balancer listeners should be configured with HTTPS or TLS termination,,"【①：リスク】
+・非暗号化通信は盗聴、改ざんのリスクが高い
+【②：対策】
+・Classic Load Balancerを使わず、Application Load BalancerかNetwork Load Balancerを使う
+・Classic Load BalancerのリスナーポートをHTTPやTCPではなく、HTTPSかTLSのみに設定する
+（実施時のTIP）
+・Classic Load BalancerがInternal設定かどうかに関わらず検出される。
+【③：②を行わない場合のリスク軽減策】
+・なし",強く推奨,強く推奨,推奨,推奨
+59,AWS,RDS,中,RDS.14,Amazon Aurora clusters should have backtracking enabled,,"【①：リスク】
+・バックトラックはバックアップによる復元より迅速にDBを特定時点の状態に戻すことができる。
+【②：対策】
+・DBクラスターでバックトラックを有効にする
+（実施時のTIP）
+・バックトラックがサポートされるのはAurora MySQLのみ
+【③：②を行わない場合のリスク軽減策】
+・無し。",推奨,任意,推奨,任意
+60,AWS,IAM,低,IAM.2,IAM ユーザーには IAM ポリシーをアタッチしないでください,"IAM.2
+CIS.1.16",,,,,
+61,AWS,IAM,低,IAM.21,IAM customer managed policies that you create should not allow wildcard actions for services,,,,,,
+62,AWS,RDS,低,RDS.23,RDS instances should not use a database engine default port,,,,,,
+63,AWS,APIGateway,低,APIGateway.3,API Gateway REST API stages should have AWS X-Ray tracing enabled,,,,,,
+64,AWS,RDS,低,RDS.6,RDS DB インスタンスおよびクラスターに対して拡張モニタリングを設定する必要があります,,,,,,
+65,AWS,RDS,低,RDS.17,RDS DB instances should be configured to copy tags to snapshots,,,,,,
+66,AWS,CloudTrail,低,CloudTrail.5,CloudTrail trails should be integrated with Amazon CloudWatch Logs,"CloudTrail.5
+CIS.2.4",,,,,
+67,AWS,RDS,低,RDS.8,RDS DB インスタンスでは、削除保護を有効にする必要があります,,,,,,
+68,AWS,EC2,低,EC2.17,EC2 instances should not use multiple ENIs,,,,,,
+69,AWS,RDS,低,RDS.7,RDS クラスターでは、削除保護を有効にする必要があります,,,,,,
+70,AWS,RDS,低,RDS.20,An RDS event notifications subscription should be configured for critical database instance events,,,,,,
+71,AWS,SSM,低,SSM.3,Systems Manager によって管理される EC2 インスタンスでは、関連付けコンプライアンスステータスが COMPLIANT である必要があります,,,,,,
+72,AWS,CloudTrail,低,CloudTrail.4,CloudTrail log file validation should be enabled,"CloudTrail.4
+CIS.2.2",,,,,
+73,AWS,RDS,低,RDS.16,RDS DB clusters should be configured to copy tags to snapshots,,,,,,
+74,AWS,EC2,低,EC2.16,Unused Network Access Control Lists should be removed,,,,,,
+75,AWS,IAM,重要,IAM.6,ハードウェア MFA はルートユーザーに対して有効にする必要があります,"IAM.6
+CIS.1.14","【①：リスク】
+・ルートユーザが乗っ取られてしまうと、攻撃者によりAWS環境の全ての操作が可能になる。
+【②：対策】
+・ハードウェアMFAを利用して、ルートユーザのMFAを有効にする。
+（実施時のTIP）
+・ソフトウェアMFAを利用してもこの項目は対応済みとはみなされない。
+・ソフトウェアMFAよりもハードウェアMFAの方がよりセキュアだが、用意や管理に手間がかかる。
+【③：②を行わない場合のリスク軽減策】
+・ソフトウェアMFAを利用して、ルートユーザのMFAを有効にする。",任意,任意,任意,任意
+76,AWS,SSM,重要,SSM.4,SSM documents should not be public,,"【①：リスク】
+・SSMドキュメントに機密情報が含まれている場合に、情報漏洩につながる。
+【②：対策】
+・SSMドキュメントをフライベートに設定する。
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,強く推奨,強く推奨,強く推奨
+77,AWS,CodeBuild,重要,CodeBuild.1,CodeBuild GitHub または Bitbucket ソースリポジトリの URL は OAuth を使用する必要があります,,"【①：リスク】
+・GitHubやBitbucketの接続URLのパラメータにPersonal Access Tokenやパスワードが含まれていると漏えいのリスクが高い。
+【②：対策】
+・GitHubやBitbucketに接続する際にOAuthを利用する。
+（実施時のTIP）
+・URLパラメータにPersonal Access Tokenを含める方法はGitHubでも非推奨とされており、通常であればこの方法が使われるケースはないと思われる
+・OAuthではなくPersonal Access Tokenやパスワードを利用した接続方法でも、URLパラメータにそれらが含まれていなければ、この項目は検出されない。
+【③：②を行わない場合のリスク軽減策】
+・無し",強く推奨,強く推奨,強く推奨,強く推奨
+78,AWS,CodeBuild,重要,CodeBuild.2,CodeBuild プロジェクトの環境変数には、クリアテキストの認証情報を含めないでください,,"【①：リスク】
+・認証情報の漏洩は、意図しないデータの漏洩や不正なアクセスにつながる可能性がある。
+【②：対策】
+・CodeBuild プロジェクトからプレーンテキストの資格情報を含む環境変数を削除する。
+（実施時のTIP）
+・AWS Systems ManagerのParameter Storeに機密データを含むパラメータを作成し、環境変数の値としてパラメータ名を使用する。
+・以下の条件を両方満たす場合に本項目が検出される。
+　・1. CodeBuildプロジェクトの環境変数名が「AWS_ACCESS_KEY_ID」「AWS_SECRET_ACCESS_KEY」のどちらかである。
+　・2. CodeBuildプロジェクトの環境変数のタイプが「プレーンテキスト」「Secrets Manager」のどちらかである。（「パラメータ」の場合のみ検出されない）
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,強く推奨,強く推奨,強く推奨
+79,AWS,DMS,重要,DMS.1,Database Migration Service のレプリケーションインスタンスはパブリックであってはなりません,,"【①：リスク】
+・レプリケーションインスタンスに対してパブリックアクセスを許可することでインターネットから攻撃される。
+【②：対策】
+・（パブリックアクセスを許可した）既存のレプリケーションインスタンスを削除する。
+（実施時のTIP）
+・DB（ソース、ターゲット）がレプリケーションインスタンスにVPN、AWS Direct Connect、または VPC ピアリングを使用してアクセスできるようにする。
+・パブリックアクセスを選択せずにレプリケーションインスタンスを再作成する。
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,強く推奨,強く推奨,強く推奨
+80,AWS,EC2,重要,EC2.1,EBS スナップショットはパブリックであってはなりません。誰でも復元できるかどうかによって決まります。,,"【①：リスク】
+・EBSスナップショットのすべてのデータに他人がアクセスできるようになる。
+【②：対策】
+・スナップショットをプライベート設定に変更する。
+（実施時のTIP）
+・スナップショットをプライベート設定のまま特定のAWS アカウント番号と共有することは可能。
+　・※AWS アカウント番号を指定
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,強く推奨,強く推奨,強く推奨
+81,AWS,ES,重要,ES.2,Amazon Elasticsearch Service domains should be in a VPC,,"【①：リスク】
+・ElasticsearchのドメインがVPC内にない場合、通信はパブリックネットワークを経由するため、通信内容の抜き取りや改ざんをされるリスクが高い。
+【②：対策】
+・Elasticsearchドメインをパブリックアクセスで作成している場合、削除しVPCアクセスで作成し直す。
+（実施時のTIP）
+・ElasticsearchドメインがVPC内にあっても、パブリックのエンドポイントを経由して通信しているかどうかは検出してくれないため、自前で確認する必要がある。
+【③：②を行わない場合のリスク軽減策】
+・ドメインへの通信にはHTTPSのみを使用するようにセキュリティ設定を行う。",強く推奨,強く推奨,推奨,推奨
+82,AWS,KMS,重要,KMS.3,AWS KMS keys should not be deleted unintentionally,,"【①：リスク】
+・意図せずにKMSキーが削除されてしまうと、そのキーで暗号化されていたデータは復元できなくなる。
+【②：対策】
+・削除がスケジュールされているキーを確認し、意図したキー削除かどうかを確認する。
+・キー削除がスケジュールされているだけでこの項目は検出されるので、意図したキー削除の場合は無視する。
+【③：②を行わない場合のリスク軽減策】
+なし",任意,任意,任意,任意
+83,AWS,Lambda,重要,Lambda.1,Lambda 関数は、他のアカウントによるパブリックアクセスを禁止する必要があります,,"【①：リスク】
+・どのサービスからでもLambda 関数のコードへアクセス可能な状態となり、意図しないアクセスが起こる可能性がある。
+【②：対策】
+・該当するリソースベースのポリシーを削除する。
+・特定のアカウントのみアクセス可能に設定する。
+（実施時のTIP）
+・適切なプリンシパルを指定して、リソースベースのポリシーを再作成する。
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,強く推奨,推奨,推奨
+84,AWS,RDS,重要,RDS.1,RDS スナップショットはプライベートにする必要があります,,"【①：リスク】
+・暗号化されていない手動スナップショットをパブリックとして共有すると、すべてのAWSアカウントでスナップショットを利用できるようになる。 これにより、RDSインスタンスの意図しないデータ漏洩が発生する可能性がある。
+【②：対策】
+・DBスナップショットの可視性をPublicからPrivateに設定を変更する。
+（実施時のTIP）
+・スナップショットの共有が必用な場合はPrivateに設定の上、他のアカウントにアクセス許可を付与する。
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,強く推奨,強く推奨,強く推奨
+85,AWS,Redshift,重要,Redshift.1,Amazon Redshift clusters should prohibit public access,,"【①：リスク】
+・Amazon RedshiftクラスタにアタッチされたパブリックIPアドレスがインターネット上から攻撃される。
+【②：対策】
+・Amazon RedshiftクラスタにパブリックIPアドレスを割り当てない構成にする。
+【③：②を行わない場合のリスク軽減策】
+・SG（セキュリティグループ）等で接続元IPを制限する。",強く推奨,強く推奨,推奨,推奨
+86,AWS,S3,重要,S3.2,S3 バケットはパブリック読み取りアクセスを禁止する必要があります,,"【①：リスク】
+・S3バケットへのパブリック読み取りアクセスが許可されていると、意図せず重要なファイルが読み取られる可能性がある。
+【②：対策】
+・バケットのブロックパブリックアクセス設定を有効化し、S3バケットへのパブリックアクセスを禁止する。
+（実施時のTIP）
+・ブロックパブリックアクセス、バケットポリシー、バケットACLを組み合わせて最終的にパブリック読み取りアクセスを許可しているかどうか判断している。S3.8よりも緩い条件のルール
+・AWS ConfigのIAMロールに適切なポリシーが付いていないと、データを読み取れずにすべてPASSEDステータスになってしまうことがある。
+【③：②を行わない場合のリスク軽減策】
+・重要なファイルはパブリック公開用のバケットに保存しない",強く推奨,強く推奨,強く推奨,強く推奨
+87,AWS,S3,重要,S3.3,S3 バケットはパブリック書き込みアクセスを禁止する必要があります,,"【①：リスク】
+・S3バケットへのパブリック書き込みアクセスが許可されていると、ファイルが第三者に上書きされる、大量のファイルを配置されAWS利用料が膨らむなどのリスクがある。
+【②：対策】
+・バケットのブロックパブリックアクセス設定を有効化し、S3バケットへのパブリックアクセスを禁止する。
+（実施時のTIP）
+・ブロックパブリックアクセス、バケットポリシー、バケットACLを組み合わせて最終的にパブリック書き込みアクセスを許可しているかどうか判断している。S3.8よりも緩い条件のルール
+・AWS ConfigのIAMロールに適切なポリシーが付いていないと、データを読み取れずにすべてPASSEDステータスになってしまうことがある。
+【③：②を行わない場合のリスク軽減策】
+・なし",強く推奨,強く推奨,強く推奨,強く推奨
+88,AWS,ECS,高,ECS.1,Amazon ECS タスク定義には、安全なネットワークモードとユーザー定義が必要です,,"【①：リスク】
+・ネットワークモードがホストに設定されたAmazon ECS タスク定義で明示的に特権を定義しない場合、予期しない特権の昇格が発生する可能性がある。
+【②：対策】
+・Amazon ECS タスク定義を更新し、root以外のユーザーを使用する。
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,強く推奨,強く推奨,強く推奨
+89,AWS,EMR,高,EMR.1,Amazon Elastic MapReduce クラスターのマスターノードにはパブリック IP を使用できません,"ECS.2
+EMR.1","【①：リスク】
+・Amazon EMR クラスターのマスターノードにアタッチされたパブリックIPアドレスがインターネット上から攻撃される。
+【②：対策】
+・マスターノードにパブリックIPアドレス割り当てない構成にする。
+・サブネットの設定でマスターノードにパブリックIPアドレスが付与されないように設定する。
+（実施時のTIP）
+・保守作業用の踏み台サーバとしてパブリックIPアドレスを割り当てている場合は、AWS Systems Managerのセッションマネージャーの代替を検討する。
+（RDPが必要な場合）
+・https://business.ntt-east.co.jp/content/cloudsolution/column-try-27.html
+【③：②を行わない場合のリスク軽減策】
+・SG（セキュリティグループ）等で接続元IPを制限する。",強く推奨,強く推奨,推奨,推奨
+90,AWS,ElasticBeanstalk,高,ElasticBeanstalk.2,Elastic Beanstalk managed platform updates should be enabled,,"【①：リスク】
+・Elastic Beanstalkを構成するソフトウェアの脆弱性が放置されることにより、脆弱性を攻撃される。
+【②：対策】
+・環境の自動更新設定を有効化する。
+【③：②を行わない場合のリスク軽減策】
+・環境で使用しているソフトウェアの脆弱性情報を収集し、自システムにおけるセキュリティリスク評価を行う。",推奨,推奨,推奨,推奨
+91,AWS,RDS,高,RDS.18,RDS instances should be deployed in a VPC,,"【①：リスク】
+・RDSインスタンスがVPC外に作成されるとパブリックアクセスが可能になり、データ窃取や改ざんのリスクが高まる。
+【②：対策】
+・RDSインスタンスをVPC内に移動する。
+（実施時のTIP）
+・現状新しく作成されたAWSアカウントではVPC外にRDSインスタンスを作成することができなくなっているため、この項目が検出されることはなくなった。
+【③：②を行わない場合のリスク軽減策】
+・なし",強く推奨,強く推奨,強く推奨,強く推奨
+92,AWS,SSM,高,SSM.2,Systems Manager で管理される EC2 インスタンスでは、パッチのインストール後、パッチコンプライアンスステータスが COMPLIANT である必要があります,,"【①：リスク】
+・EC2インスタンスのパッチ適用状態が最新でないと、脆弱性により攻撃を受けるリスクが高まる。
+【②：対策】
+・Systems ManagerのRun CommandなどでEC2インスタンスのパッチを適用する。
+（実施時のTIP）
+・Systems Managerで管理されており、パッチのスキャンがされたことが前提で、スキャンの結果がNON_COMPLIANTだったEC2インスタンスのみ検出される。
+【③：②を行わない場合のリスク軽減策】
+・EC2インスタンスが外部からアクセスされないよう対策を行う。（プライベートサブネットに配置する、セキュリティグループでアクセス元IPアドレスを制限する、など）",推奨,推奨,推奨,推奨
+93,AWS,SageMaker,高,SageMaker.1,Amazon SageMaker ノートブックインスタンスにインターネットへの直接アクセスを設定しないようにします,,"【①：リスク】
+・SageMakerノートブックインスタンスに対して不正アクセスを起こる可能性がある。
+【②：対策】
+・該当するSageMakerノートブックインスタンスを削除する。
+（実施時のTIP）
+・VPCあり（直接インターネット接続なし）の設定で、新規にSageMakerノートブックインスタンスを作成する。
+・インターネットアクセスを継続するためにNATゲートウェイ かNATインスタンスを設定する。
+【③：②を行わない場合のリスク軽減策】
+・SG（セキュリティグループ）等で接続元IPを制限する。",推奨,推奨,推奨,推奨
+94,AWS,APIGateway,中,APIGateway.5,API Gateway REST API cache data should be encrypted at rest,,,,,,
+95,AWS,DynamoDB,中,DynamoDB.3,DynamoDB Accelerator (DAX) clusters should be encrypted at rest,,,,,,
+96,AWS,ELB,中,ELB.7,Classic Load Balancers should have connection draining enabled,,,,,,
+97,AWS,ES,中,ES.1,ElasticSearch ドメインでは、保管時の暗号化を有効にする必要があります,,,,,,
+98,AWS,ES,中,ES.3,Amazon Elasticsearch domains should encrypt data sent between nodes,,,,,,
+99,AWS,ES,中,ES.4,Amazon Elasticsearch Service domain error logging to CloudWatch Logs should be enabled,,,,,,
+100,AWS,ES,中,ES.5,Amazon Elasticsearch domains should have audit logging enabled,,,,,,
+101,AWS,ES,中,ES.6,Amazon Elasticsearch domains should have at least three data nodes,,,,,,
+102,AWS,ES,中,ES.7,Amazon Elasticsearch domains should be configured with at least three dedicated master nodes,,,,,,
+103,AWS,ES,中,ES.8,Connections to Amazon Elasticsearch domains should be encrypted using TLS 1.2,,,,,,
+104,AWS,Redshift,中,Redshift.2,Connections to Amazon Redshift clusters should be encrypted in transit,,,,,,
+105,AWS,Redshift,中,Redshift.3,Amazon Redshift clusters should have automatic snapshots enabled,,,,,,
+106,AWS,Redshift,中,Redshift.4,Amazon Redshift clusters should have audit logging enabled,,,,,,
+107,AWS,Redshift,中,Redshift.6,Amazon Redshift should have automatic upgrades to major versions enabled,,,,,,
+108,AWS,Redshift,中,Redshift.7,Redshift clusters should use enhanced VPC routing,,,,,,
+109,AWS,SecretsManager,中,SecretsManager.2,自動ローテーションで設定された Secrets Manager シークレットは正常にローテーションする,,ローテーションに失敗したらアラートあがるようだが、その場合は対応が必要,,,,
+110,AWS,SecretsManager,中,SecretsManager.3,Remove unused Secrets Manager secrets,,,,,,
+111,AWS,SecretsManager,中,SecretsManager.4,Secrets Manager secrets should be rotated within a specified number of days,,,,,,
+112,AWS,AutoScaling,低,AutoScaling.1,ロードバランサーに関連付けられた Auto Scaling グループはロードバランサーのヘルスチェックを使用する必要があります,,,,,,
+113,AWS,ElasticBeanstalk,低,ElasticBeanstalk.1,Elastic Beanstalk environments should have enhanced health reporting enabled,,,,,,
+114,AWS,RDS,低,RDS.19,An RDS event notifications subscription should be configured for critical cluster events,,,,,,
+115,AWS,RDS,低,RDS.21,An RDS event notifications subscription should be configured for critical database parameter group events,,,,,,
+116,AWS,RDS,低,RDS.22,An RDS event notifications subscription should be configured for critical database security group events,,,,,,
+117,CIS,IAM,重要,CIS.1.14,ハードウェア MFA が「ルート」アカウントに対して有効であることを確認する,"IAM.6
+CIS.1.14",,,,,
+118,CIS,IAM,重要,CIS.1.13,MFA が「ルート」アカウントに対して有効であることを確認する,,"【①：リスク】
+・ID、パスワードが漏洩したり、総当たり攻撃等により、不正にルートアカウントにログインされる可能性がある。
+【②：対策】
+・ルートアカウントにMFAを有効にする。
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,強く推奨,強く推奨,強く推奨
+119,CIS,IAM,重要,CIS.1.12,ルートアカウントのアクセスキーが存在しないことを確認する,"IAM.4
+CIS.1.12",,,,,
+120,CIS,EC2,高,CIS.4.3,すべての VPC のデフォルトセキュリティグループがすべてのトラフィックを制限していることを確認する,"EC2.2
+CIS.4.3",,,,,
+121,CIS,EC2,高,CIS.4.1,どのセキュリティグループも 0.0.0.0/0 からポート 22 への侵入を許可していないことを確認する,"EC2.18
+CIS.4.1
+CIS.4.2",,,,,
+122,CIS,EC2,高,CIS.4.2,どのセキュリティグループも 0.0.0.0/0 からポート 3389 への侵入を許可していないことを確認する,"EC2.18
+CIS.4.1
+CIS.4.2",,,,,
+123,CIS,IAM,高,CIS.1.22,完全な「*:*」管理権限を許可する IAM ポリシーが作成されていないことを確認する,"IAM.1
+CIS.1.22",,,,,
+124,CIS,CloudTrail,高,CIS.2.1,CloudTrail がすべてのリージョンで有効であることを確認する,"CloudTrail.1
+CIS.2.1",,,,,
+125,CIS,IAM,中,CIS.1.4,アクセスキーが 90 日以内にローテーションされることを確認する,"IAM.3
+CIS.1.4",,,,,
+126,CIS,IAM,中,CIS.1.3,90 日以上使用されていない認証情報が無効であることを確認する,"IAM.8
+CIS.1.3",,,,,
+127,CIS,EC2,中,CIS.2.9,すべての VPC で VPC フローロギングが有効であることを確認する,"EC2.6
+CIS.2.9",,,,,
+128,CIS,IAM,中,CIS.1.2,コンソールパスワードを持つすべての IAM ユーザーに対して Multi-Factor authentication (MFA) が有効であることを確認する,"IAM.5
+CIS.1.2",,,,,
+129,CIS,IAM,中,CIS.1.9,IAM パスワードポリシーで、最小文字数の 14 文字かそれ以上が要求されていることを確認する,"IAM.7
+CIS.1.5
+CIS.1.6
+CIS.1.7
+CIS.1.8
+CIS.1.9",,,,,
+130,CIS,CloudTrail,中,CIS.2.7,KMS CMK を使用して CloudTrail ログが保存時に暗号化されていることを確認する,"CloudTrail.2
+CIS.2.7",,,,,
+131,CIS,KMS,中,CIS.2.8,顧客が作成した CMK のローテーションが有効であることを確認する,,"【①：リスク】
+・同一キーを利用し続ける場合、キー流出時のデータ漏洩範囲の拡大が懸念される。
+【②：対策】
+・該当のカスタマー管理型のキーでキーローテーションを有効にする
+（実施時のTIP）
+・設定を有効にすることで1年毎に自動更新される
+【③：②を行わない場合のリスク軽減策】
+・手動でキーを更新する",強く推奨,強く推奨,強く推奨,強く推奨
+132,CIS,IAM,中,CIS.1.5,IAM パスワードポリシーで少なくとも 1 文字の大文字が要求されていることを確認する,"IAM.7
+CIS.1.5
+CIS.1.6
+CIS.1.7
+CIS.1.8
+CIS.1.9",,,,,
+133,CIS,IAM,中,CIS.1.6,IAM パスワードポリシーで少なくとも 1 文字の小文字が要求されていることを確認する,"IAM.7
+CIS.1.5
+CIS.1.6
+CIS.1.7
+CIS.1.8
+CIS.1.9",,,,,
+134,CIS,IAM,中,CIS.1.7,IAM パスワードポリシーで少なくとも 1 文字の記号が要求されていることを確認する,"IAM.7
+CIS.1.5
+CIS.1.6
+CIS.1.7
+CIS.1.8
+CIS.1.9",,,,,
+135,CIS,IAM,中,CIS.1.8,IAM パスワードポリシーで少なくとも 1 文字の数字が要求されていることを確認する,"IAM.7
+CIS.1.5
+CIS.1.6
+CIS.1.7
+CIS.1.8
+CIS.1.9",,,,,
+136,CIS,Config,中,CIS.2.5,AWS Config が有効になっていることを確認する,"Config.1
+CIS.2.5",,,,,
+137,CIS,IAM,低,CIS.1.16,IAM ポリシーがグループまたはロールだけにアタッチされていることを確認する,"IAM.2
+CIS.1.16",,,,,
+138,CIS,IAM,低,CIS.1.1,「ルート」アカウントの使用を避ける,,,,,,
+139,CIS,IAM,低,CIS.1.10,IAM パスワードポリシーを確認して、パスワードの再利用を防ぐ,,,,,,
+140,CIS,IAM,低,CIS.1.11,IAM パスワードポリシーでパスワードが 90 日以内に有効期限切れとなることを確認する,,,,,,
+141,CIS,CloudWatch,低,CIS.3.1,不正な API 呼び出しに対してログメトリクスフィルタとアラームが存在することを確認する,,,,,,
+142,CIS,CloudWatch,低,CIS.3.10,セキュリティグループの変更に対してログメトリクスフィルタとアラームが存在することを確認する,,,,,,
+143,CIS,CloudWatch,低,CIS.3.11,ネットワークアクセスコントロールリスト (NACL) の変更に対してログメトリクスフィルタとアラームが存在することを確認する,,,,,,
+144,CIS,CloudWatch,低,CIS.3.12,ネットワークゲートウェイの変更に対してログメトリクスフィルタとアラームが存在することを確認する,,,,,,
+145,CIS,CloudWatch,低,CIS.3.13,ルートテーブルの変更に対してログメトリクスフィルタとアラームが存在することを確認する,,,,,,
+146,CIS,CloudWatch,低,CIS.3.14,VPC の変更に対してログメトリクスフィルタとアラームが存在することを確認する,,,,,,
+147,CIS,CloudWatch,低,CIS.3.2,MFA なしでのマネジメントコンソールサインインに対してログメトリクスフィルタとアラームが存在することを確認する,,,,,,
+148,CIS,CloudWatch,低,CIS.3.3,「ルート」アカウントの使用に対してログメトリクスフィルタとアラームが存在することを確認する,,,,,,
+149,CIS,CloudWatch,低,CIS.3.4,IAM ポリシーの変更に対してログメトリクスフィルタとアラームが存在することを確認する,,,,,,
+150,CIS,CloudWatch,低,CIS.3.5,CloudTrail 設定の変更に対してログメトリクスフィルタとアラームが存在することを確認する,,,,,,
+151,CIS,CloudWatch,低,CIS.3.6,AWS マネジメントコンソール認証失敗に対してログメトリクスフィルタとアラームが存在することを確認する,,,,,,
+152,CIS,CloudWatch,低,CIS.3.7,お客様が作成した CMK の無効化またはスケジュールされた削除に対してログメトリクスフィルタとアラームが存在することを確認する,,,,,,
+153,CIS,CloudWatch,低,CIS.3.8,S3 バケットポリシーの変更に対してログメトリクスフィルタとアラームが存在することを確認する,,,,,,
+154,CIS,CloudWatch,低,CIS.3.9,AWS Config 設定の変更に対してログメトリクスフィルタとアラームが存在することを確認する,,,,,,
+155,CIS,CloudTrail,低,CIS.2.4,CloudTrail の証跡が CloudWatch Logs と統合されていることを確認する,"CloudTrail.5
+CIS.2.4",,,,,
+156,CIS,CloudTrail,低,CIS.2.6,CloudTrail S3 バケットで S3 バケットアクセスログが有効であることを確認する,,,,,,
+157,CIS,IAM,低,CIS.1.20,AWS サポートでインシデントを管理するためのサポートロールが作成されていることを確認する,,,,,,
+158,CIS,CloudTrail,低,CIS.2.2,CloudTrail ログファイル検証が有効であることを確認する,"CloudTrail.4
+CIS.2.2",,,,,
+159,CIS,CloudTrail,重要,CIS.2.3,CloudTrail ログを保存するために使用される S3 バケットが一般にアクセス可能ではないことを確認する,"S3.8
+CIS.2.3","【①：リスク】
+・S3バケットに格納したCloudTrailのログがインターネットから参照される。
+【②：対策】
+・パブリックアクセスブロックをオンに設定する。
+【③：②を行わない場合のリスク軽減策】
+・無し。",強く推奨,強く推奨,強く推奨,強く推奨
