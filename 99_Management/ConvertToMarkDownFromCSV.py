@@ -5,7 +5,7 @@ LINK_FORMAT = "[%s1](%s2)"
 def CreateStandardTable():
     # markdown_file = open('./convert.md',"w")
     records = ""
-    with open('セキュリティ基準一覧（マスタ）.csv', 'r', encoding="utf-8-sig") as fr:
+    with open('対策方針一覧（マスタ）.csv', 'r', encoding="utf-8-sig") as fr:
         csv_file = csv.DictReader(fr, escapechar='\\')
         # マークダウンの表ヘッダー出力
         header_output_flag = False
@@ -28,8 +28,9 @@ def CreateStandardTable():
             record = "|" + "|".join(column_list) + "|"
             record = record.replace("\n","</br>")
             records = records + record + "\n"
-    with open("../10_設定基準一覧.md", mode='w', encoding='utf-8') as fw:
+    with open("../10_対策方針一覧.md", mode='w', encoding='utf-8') as fw:
         fw.write(records)
+    print("../10_対策方針一覧.md")
 
 def CreateDetailMarkdown(raw,file_path):
     with open(file_path, mode='w', encoding='utf-8') as f:
